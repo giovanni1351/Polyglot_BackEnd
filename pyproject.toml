@@ -1,0 +1,23 @@
+[project]
+name = "multidatabase"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiosqlite>=0.21.0",
+    "alembic>=1.16.5",
+    "asyncpg>=0.30.0",
+    "fastapi[sqlmodel]>=0.116.1",
+    "passlib[bcrypt]>=1.7.4",
+    "pydantic-settings>=2.10.1",
+    "pyjwt>=2.10.1",
+    "pylogkit",
+    "python-multipart>=0.0.20",
+    "sqlmodel>=0.0.24",
+    "tzdata>=2025.2",
+    "uvicorn>=0.35.0",
+]
+
+[tool.uv.sources]
+pylogkit = { git = "https://github.com/luizomf/pylogkit.git" }
