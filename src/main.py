@@ -15,4 +15,4 @@ async def on_startup() -> None:
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port="8000")
+    run("main:app", host="0.0.0.0", port=8000)
