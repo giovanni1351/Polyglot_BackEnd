@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from schemas.User import User
+from schemas.user import User
 
 
 class PagamentoCreate(SQLModel):
@@ -16,6 +16,6 @@ class PagamentoCreate(SQLModel):
 class Pagamento(PagamentoCreate, table=True):
     id: int | None = Field(default=None, primary_key=True)
     user_id: int | None = Field(default=None, foreign_key="user.id")
-    user: User = Relationship(back_populates="User")
+    user: User = Relationship(back_populates="pagamentos")
     created_at: datetime = Field(default=datetime.now())
     updated_at: datetime | None = Field(default=None)

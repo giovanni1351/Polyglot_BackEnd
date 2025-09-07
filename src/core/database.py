@@ -11,6 +11,7 @@ with SessionDep(engine) as session:
 
 """
 
+from collections.abc import AsyncGenerator
 from typing import Annotated
 
 from fastapi import Depends
@@ -23,7 +24,8 @@ from settings import LOGGER, Settings
 
 if Settings().SERVER is not None:
     LOGGER.info(
-        f"Creating engine to database: {Settings().SERVER=} {Settings().PORT=} {Settings().DATABASE=}"
+        f"Creating engine to database: {Settings().SERVER=} {Settings().PORT=}"
+        f"{Settings().DATABASE=}"
     )
 else:
     LOGGER.info(f"Creating engine to database: {Settings().DATABASE=}")
@@ -37,13 +39,13 @@ async_engine: AsyncEngine = create_async_engine(
 LOGGER.info(f"Engine created: {async_engine=}")
 
 
-async def get_async_session():
+async def get_async_session() -> AsyncGenerator[any, any, AsyncSession]:
     LOGGER.debug(f"Getting async session to {Settings().DATABASE=}")
     async with AsyncSession(async_engine, expire_on_commit=False) as session:
         yield session
 
 
-async def create_db_and_tables():
+async def create_db_and_tables() -> None:
     LOGGER.info(f"Creating tables to {Settings().DATABASE= }")
     async with async_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)

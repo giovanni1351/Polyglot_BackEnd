@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from core.auth import authenticate_user, create_access_token
 from core.database import AsyncSessionDep
-from schemas.Token import Token
+from schemas.token import Token
 from settings import Settings
 
 router = APIRouter(prefix="/token", tags=["token"])
@@ -30,4 +30,4 @@ async def login_for_access_token(
         },
         expires_delta=access_token_expires,
     )
-    return Token(access_token=access_token, token_type="bearer")
+    return Token(access_token=access_token, token_type="bearer")  # noqa: S106

@@ -1,18 +1,17 @@
-import datetime
-from datetime import timedelta
-from time import timezone
-from typing import Annotated, Union
+from datetime import UTC, datetime, timedelta
+from typing import Annotated, Literal
 
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt import InvalidTokenError
 from passlib.context import CryptContext
+from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from core.database import AsyncSessionDep
-from schemas.Token import TokenData
-from schemas.User import User
+from schemas.token import TokenData
+from schemas.user import User
 from settings import LOGGER, Settings
 from utils.relational_utils import get_item_or_404
 
@@ -28,7 +27,7 @@ LOGGER.info("Sistema de autenticação criado com sucesso")
 
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)], session: AsyncSessionDep
-):
+) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -42,8 +41,8 @@ async def get_current_user(
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
-    except InvalidTokenError:
-        raise credentials_exception
+    except InvalidTokenError as e:
+        raise credentials_exception from e
     user = await get_item_or_404(session, User, token_data.username)
     if user is None:
         raise credentials_exception
@@ -52,23 +51,25 @@ async def get_current_user(
 
 async def get_current_admin(
     current_user: Annotated[User, Depends(get_current_user)],
-):
+) -> User:
     if not current_user.admin:
         raise HTTPException(status_code=400, detail="User not admin")
     return current_user
 
 
-def verify_password(plain_password, hashed_password):
+def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def get_password_hash(password):
+def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-async def authenticate_user(username: str, password: str, session: AsyncSession):
+async def authenticate_user(
+    username: str, password: str, session: AsyncSession
+) -> User | Literal[False]:
     LOGGER.info(f"Autenticando usuário {username}")
-    user = await get_item_or_404(session, User, username)
+    user = (await session.exec(select(User).where(User.username == username))).first()
     if not user:
         return False
     if not verify_password(password, user.password):
@@ -76,15 +77,12 @@ async def authenticate_user(username: str, password: str, session: AsyncSession)
     return user
 
 
-def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     LOGGER.info("Criando token de acesso")
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
+        expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        expire = datetime.now(UTC) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(
-        to_encode, Settings().SECRET_KEY, algorithm=Settings().ALGORITHM
-    )
-    return encoded_jwt
+    return jwt.encode(to_encode, Settings().SECRET_KEY, algorithm=Settings().ALGORITHM)
