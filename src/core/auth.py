@@ -13,7 +13,6 @@ from core.database import AsyncSessionDep
 from schemas.token import TokenData
 from schemas.user import User
 from settings import LOGGER, Settings
-from utils.relational_utils import get_item_or_404
 
 LOGGER.info("Criando o sistema de autenticação")
 SECRET_KEY = Settings().SECRET_KEY
@@ -37,13 +36,15 @@ async def get_current_user(
         payload = jwt.decode(
             token, Settings().SECRET_KEY, algorithms=[Settings().ALGORITHM]
         )
-        username = payload.get("sub")
-        if username is None:
+        email = payload.get("sub")
+        if email is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        token_data = TokenData(email=email)
     except InvalidTokenError as e:
         raise credentials_exception from e
-    user = await get_item_or_404(session, User, token_data.username)
+    user = (
+        await session.exec(select(User).where(User.email == token_data.email))
+    ).first()
     if user is None:
         raise credentials_exception
     return user
