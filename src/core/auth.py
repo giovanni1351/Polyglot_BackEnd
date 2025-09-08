@@ -53,8 +53,10 @@ async def get_current_user(
 async def get_current_admin(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> User:
-    if not current_user.admin:
-        raise HTTPException(status_code=400, detail="User not admin")
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not admin"
+        )
     return current_user
 
 

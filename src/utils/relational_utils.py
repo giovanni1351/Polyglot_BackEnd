@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Type
 
 from fastapi import HTTPException, status
 from sqlmodel import select
@@ -10,7 +9,7 @@ from settings import LOGGER
 # Decorator para logar o retorno da função e verificar se ocorreu algum erro
 
 
-async def create_item[T](session: AsyncSession, model: Type[T], data: dict) -> T | None:
+async def create_item[T](session: AsyncSession, model: type[T], data: dict) -> T | None:
     """Helper genérico para criar"""
     if hasattr(model, "created_at"):
         data["created_at"] = datetime.now()
@@ -25,7 +24,7 @@ async def create_item[T](session: AsyncSession, model: Type[T], data: dict) -> T
 
 
 async def get_item_or_404[T](
-    session: AsyncSession, model: Type[T], item_id
+    session: AsyncSession, model: type[T], item_id
 ) -> T | None:
     """Helper genérico para buscar"""
     item = await session.get(model, item_id)
@@ -39,7 +38,7 @@ async def get_item_or_404[T](
 
 
 async def update_item[T](
-    session: AsyncSessionDep, model: Type[T], data: dict
+    session: AsyncSessionDep, model: type[T], data: dict
 ) -> T | None:
     item = await get_item_or_404(session, model, data["id"])
     for key, value in data.items():
@@ -51,7 +50,7 @@ async def update_item[T](
 
 
 async def get_all_items[T](
-    session: AsyncSession, model: Type[T], **kwargs
+    session: AsyncSession, model: type[T], **kwargs
 ) -> list[T] | None:
     """Helper genérico para buscar todos os itens"""
     try:
@@ -64,7 +63,7 @@ async def get_all_items[T](
         raise e
 
 
-async def delete_item[T](session: AsyncSession, model: Type[T], item_id) -> None:
+async def delete_item[T](session: AsyncSession, model: type[T], item_id) -> None:
     """Helper genérico para deletar"""
     item = await session.get(model, item_id)
     if not item:
@@ -76,7 +75,7 @@ async def delete_item[T](session: AsyncSession, model: Type[T], item_id) -> None
     await session.commit()
 
 
-async def soft_delete_item[T](session: AsyncSession, model: Type[T], item_id) -> None:
+async def soft_delete_item[T](session: AsyncSession, model: type[T], item_id) -> None:
     """Helper genérico para deletar"""
     item = await session.get(model, item_id)
     if not item:
@@ -90,7 +89,7 @@ async def soft_delete_item[T](session: AsyncSession, model: Type[T], item_id) ->
 
 
 async def get_all_itens_by_in_clause[T](
-    session: AsyncSession, model: Type[T], column: str, ids: list[int]
+    session: AsyncSession, model: type[T], column: str, ids: list[int]
 ) -> list[T] | None:
     """Helper genérico para buscar todos os ids"""
     query = select(model)
@@ -100,7 +99,7 @@ async def get_all_itens_by_in_clause[T](
 
 
 async def remove_item_from_link_table[T](
-    session: AsyncSession, model: Type[T], item_ids: list[int]
+    session: AsyncSession, model: type[T], item_ids: list[int]
 ) -> T | None:
     """Helper genérico para deletar"""
     item = await session.get(model, item_ids)

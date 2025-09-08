@@ -1,10 +1,10 @@
-from datetime import datetime
+from datetime import datetime  # noqa: N999
 from typing import TYPE_CHECKING
 
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.payment_methods import Pagamento
+    from schemas.payment_methods import Pagamento, PagamentoPublic
 
 
 class UserCreate(SQLModel):
@@ -23,3 +23,14 @@ class User(UserCreate, table=True):
     pagamentos: list["Pagamento"] = Relationship(back_populates="user")
     created_at: datetime = Field(default=datetime.now())
     updated_at: datetime | None = Field(default=None)
+
+
+class UserPublic(UserCreate):
+    id: int | None
+    is_admin: bool
+    created_at: datetime
+    updated_at: datetime | None
+
+
+class UserWithRelations(UserPublic):
+    pagamentos: list["PagamentoPublic"] | None
