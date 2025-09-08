@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     RELOAD: bool
     ALGORITHM: str | None
     ACCESS_TOKEN_EXPIRE_MINUTES: int
+    KEY_PEM: str | None
+    CERT_PEM: str | None
 
 
 LOGGER = get_logger("mylogger", level=Settings().LOG_LEVEL)
