@@ -7,7 +7,7 @@ class Settings(BaseSettings):
 
     SERVER: str | None
     DATABASE: str | None
-    USER: str | None
+    DB_USER: str | None
     PASSWORD: str | None
     PORT: str | None
     SECRET_KEY: str | None

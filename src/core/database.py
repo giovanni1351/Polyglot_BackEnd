@@ -14,7 +14,6 @@ with SessionDep(engine) as session:
 from collections.abc import AsyncGenerator
 from typing import Annotated, Any
 
-from astrapy import DataAPIClient
 from beanie import init_beanie  # type: ignore
 from fastapi import Depends
 from pymongo import AsyncMongoClient
@@ -64,8 +63,8 @@ async def create_db_and_tables() -> None:
 AsyncSessionDep = Annotated[AsyncSession, Depends(get_async_session)]
 
 
-# Initialize the client
-client = DataAPIClient(SETTINGS.ASTRA_TOKEN)  # pyright: ignore[reportArgumentType]
-db = client.get_database_by_api_endpoint(SETTINGS.ASTRA_ENDPOINT, keyspace="Polyglot")  # pyright: ignore[reportArgumentType]
+# # Initialize the client
+# client = DataAPIClient(SETTINGS.ASTRA_TOKEN)  # pyright: ignore[reportArgumentType]
+# db = client.get_database_by_api_endpoint(SETTINGS.ASTRA_ENDPOINT, keyspace="Polyglot")  # pyright: ignore[reportArgumentType]
 
-print(f"Connected to Astra DB: {db.list_collection_names()}")
+# print(f"Connected to Astra DB: {db.list_collection_names()}")
