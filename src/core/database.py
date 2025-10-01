@@ -34,7 +34,7 @@ else:
     LOGGER.info(f"Creating engine to database: {SETTINGS.DATABASE=}")
 
 async_engine: AsyncEngine = create_async_engine(
-    f"postgresql+asyncpg://{SETTINGS.USER}:{SETTINGS.PASSWORD}@{SETTINGS.SERVER}:{SETTINGS.PORT}/{SETTINGS.DATABASE}"
+    f"postgresql+asyncpg://{SETTINGS.DB_USER}:{SETTINGS.PASSWORD}@{SETTINGS.SERVER}:{SETTINGS.PORT}/{SETTINGS.DATABASE}"
     if not SETTINGS.RELOAD
     else "sqlite+aiosqlite:///database.db",
     pool_recycle=450,
