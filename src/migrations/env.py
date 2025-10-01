@@ -6,6 +6,11 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
 
+from schemas.payment_methods import (
+    Pagamento,  # noqa: F401  # pyright: ignore[reportUnusedImport]
+)
+from schemas.user import User  # noqa: F401  # pyright: ignore[reportUnusedImport]
+
 # Adicionar o diretório raiz ao sys.path
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 

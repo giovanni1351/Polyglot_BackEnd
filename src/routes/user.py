@@ -19,6 +19,13 @@ class UserRegisterError(Exception): ...
 @router.post("/")
 async def create_user(user: UserCreate, session: AsyncSessionDep) -> User:
     user.password = get_password_hash(user.password)
+    user_exist: User | None = (
+        await session.exec(select(User).where(User.username == user.username))
+    ).first()
+    if user_exist is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Username already registred"
+        )
     return await create_item(session, User, user.model_dump())
 
 
