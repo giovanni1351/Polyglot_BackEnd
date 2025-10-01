@@ -16,7 +16,10 @@ class Settings(BaseSettings):
     ALGORITHM: str | None
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     KEY_PEM: str | None
+    ASTRA_TOKEN: str | None
+    ASTRA_ENDPOINT: str | None
     CERT_PEM: str | None
 
 
-LOGGER = get_logger("mylogger", level=Settings().LOG_LEVEL)
+SETTINGS = Settings()  # type: ignore
+LOGGER = get_logger("mylogger", level=SETTINGS.LOG_LEVEL)  # type: ignore

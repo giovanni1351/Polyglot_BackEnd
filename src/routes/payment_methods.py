@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import selectinload
@@ -9,6 +9,9 @@ from core.database import AsyncSessionDep
 from schemas.payment_methods import Pagamento, PagamentoCreate, PagamentoWithRelations
 from schemas.user import User
 from utils.relational_utils import create_item, get_item_or_404
+
+if TYPE_CHECKING:
+    from sqlalchemy import ScalarResult
 
 router = APIRouter(prefix="/payment_method", tags=["payment_method"])
 
@@ -25,11 +28,12 @@ async def create_payment(
     return await create_item(session, Pagamento, pagamento.model_dump())
 
 
-@router.get("/")
+@router.get("/", response_model=list[PagamentoWithRelations])
 async def get_payments(
     current_user: Annotated[User, Depends(get_current_admin)],
     session: AsyncSessionDep,
 ) -> list[PagamentoWithRelations]:
-    return (
-        await session.exec(select(Pagamento).options(selectinload(Pagamento.user)))
-    ).all()
+    lista: ScalarResult[Pagamento] = (  # type: ignore
+        await session.exec(select(Pagamento).options(selectinload(Pagamento.user)))  # type: ignore
+    ).all()  # type: ignore
+    return lista  # type: ignore

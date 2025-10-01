@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from core.auth import authenticate_user, create_access_token
 from core.database import AsyncSessionDep
 from schemas.token import Token
-from settings import Settings
+from settings import SETTINGS
 
 router = APIRouter(prefix="/token", tags=["token"])
 
@@ -23,7 +23,7 @@ async def login_for_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=Settings().ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=SETTINGS.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={
             "sub": user.email,

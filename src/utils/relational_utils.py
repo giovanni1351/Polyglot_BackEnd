@@ -1,7 +1,9 @@
+from collections.abc import Sequence
 from datetime import datetime
+from typing import Any
 
 from fastapi import HTTPException, status
-from sqlmodel import select
+from sqlmodel import SQLModel, select
 
 from core.database import AsyncSession, AsyncSessionDep
 from settings import LOGGER
@@ -9,7 +11,9 @@ from settings import LOGGER
 # Decorator para logar o retorno da função e verificar se ocorreu algum erro
 
 
-async def create_item[T](session: AsyncSession, model: type[T], data: dict) -> T | None:
+async def create_item[T](
+    session: AsyncSession, model: type[T], data: dict[str, Any]
+) -> T:
     """Helper genérico para criar"""
     if hasattr(model, "created_at"):
         data["created_at"] = datetime.now()
@@ -24,7 +28,7 @@ async def create_item[T](session: AsyncSession, model: type[T], data: dict) -> T
 
 
 async def get_item_or_404[T](
-    session: AsyncSession, model: type[T], item_id
+    session: AsyncSession, model: type[T], item_id: int | float | str
 ) -> T | None:
     """Helper genérico para buscar"""
     item = await session.get(model, item_id)
@@ -38,7 +42,7 @@ async def get_item_or_404[T](
 
 
 async def update_item[T](
-    session: AsyncSessionDep, model: type[T], data: dict
+    session: AsyncSessionDep, model: type[T], data: dict[str, Any]
 ) -> T | None:
     item = await get_item_or_404(session, model, data["id"])
     for key, value in data.items():
@@ -50,20 +54,19 @@ async def update_item[T](
 
 
 async def get_all_items[T](
-    session: AsyncSession, model: type[T], **kwargs
-) -> list[T] | None:
+    session: AsyncSession, model: type[T], **kwargs: dict[Any, Any]
+) -> Sequence[T] | None:
     """Helper genérico para buscar todos os itens"""
-    try:
-        query = select(model)
-        for key, value in kwargs.items():
-            query = query.where(getattr(model, key) == value)
-        result = await session.exec(query)
-        return result.all()
-    except Exception as e:
-        raise e
+    query = select(model)
+    for key, value in kwargs.items():
+        query = query.where(getattr(model, key) == value)
+    result = await session.exec(query)
+    return result.all()
 
 
-async def delete_item[T](session: AsyncSession, model: type[T], item_id) -> None:
+async def delete_item[T](
+    session: AsyncSession, model: type[T], item_id: int | str | float
+) -> None:
     """Helper genérico para deletar"""
     item = await session.get(model, item_id)
     if not item:
@@ -75,7 +78,9 @@ async def delete_item[T](session: AsyncSession, model: type[T], item_id) -> None
     await session.commit()
 
 
-async def soft_delete_item[T](session: AsyncSession, model: type[T], item_id) -> None:
+async def soft_delete_item[T: SQLModel](
+    session: AsyncSession, model: type[T], item_id: int | str
+) -> None:
     """Helper genérico para deletar"""
     item = await session.get(model, item_id)
     if not item:
@@ -88,9 +93,9 @@ async def soft_delete_item[T](session: AsyncSession, model: type[T], item_id) ->
     await session.commit()
 
 
-async def get_all_itens_by_in_clause[T](
+async def get_all_itens_by_in_clause[T: SQLModel](
     session: AsyncSession, model: type[T], column: str, ids: list[int]
-) -> list[T] | None:
+) -> Sequence[T]:
     """Helper genérico para buscar todos os ids"""
     query = select(model)
     query = query.where(getattr(model, column).in_(ids))
@@ -98,9 +103,9 @@ async def get_all_itens_by_in_clause[T](
     return result.all()
 
 
-async def remove_item_from_link_table[T](
+async def remove_item_from_link_table[T: SQLModel](
     session: AsyncSession, model: type[T], item_ids: list[int]
-) -> T | None:
+) -> T:
     """Helper genérico para deletar"""
     item = await session.get(model, item_ids)
     if not item:

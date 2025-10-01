@@ -7,7 +7,10 @@ requires-python = ">=3.13"
 dependencies = [
     "aiosqlite>=0.21.0",
     "alembic>=1.16.5",
+    "astrapy>=2.0.1",
     "asyncpg>=0.30.0",
+    "beanie[srv]>=2.0.0",
+    "cassandra-driver>=3.29.2",
     "fastapi[sqlmodel]>=0.116.1",
     "passlib[bcrypt]>=1.7.4",
     "pydantic-settings>=2.10.1",
@@ -68,6 +71,22 @@ select = [
     "N",
 ]
 ignore = ["T201", "COM812"]
+
+[tool.pyright]
+typeCheckingMode = "strict"
+pythonVersion = "3.13"
+include = ["src", 'tests']
+exclude = [
+    "**/venv",
+    "**/.venv",
+    "**/env",
+    "**/.env",
+    "**/node_modules",
+    "**/__pycache__",
+]
+venv = ".venv"
+venvPath = "."
+executionEnvironments = [{ root = "src" }]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["ANN201", "S101"]

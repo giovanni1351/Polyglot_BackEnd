@@ -1,5 +1,5 @@
 from datetime import UTC, datetime, timedelta
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -12,12 +12,12 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from core.database import AsyncSessionDep
 from schemas.token import TokenData
 from schemas.user import User
-from settings import LOGGER, Settings
+from settings import LOGGER, SETTINGS
 
 LOGGER.info("Criando o sistema de autenticação")
-SECRET_KEY = Settings().SECRET_KEY
-ALGORITHM = Settings().ALGORITHM
-ACCESS_TOKEN_EXPIRE_MINUTES = Settings().ACCESS_TOKEN_EXPIRE_MINUTES
+SECRET_KEY = SETTINGS.SECRET_KEY
+ALGORITHM = SETTINGS.ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = SETTINGS.ACCESS_TOKEN_EXPIRE_MINUTES
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -33,8 +33,10 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(
-            token, Settings().SECRET_KEY, algorithms=[Settings().ALGORITHM]
+        payload = jwt.decode(  # type: ignore
+            token,
+            SETTINGS.SECRET_KEY,  # type: ignore
+            algorithms=[SETTINGS.ALGORITHM],  # type: ignore
         )
         email = payload.get("sub")
         if email is None:
@@ -80,12 +82,14 @@ async def authenticate_user(
     return user
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+def create_access_token(
+    data: dict[str, Any], expires_delta: timedelta | None = None
+) -> str:
     LOGGER.info("Criando token de acesso")
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(UTC) + expires_delta
     else:
         expire = datetime.now(UTC) + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, Settings().SECRET_KEY, algorithm=Settings().ALGORITHM)
+    to_encode.update({"exp": expire})  # type: ignore
+    return jwt.encode(to_encode, SETTINGS.SECRET_KEY, algorithm=SETTINGS.ALGORITHM)  # type: ignore
