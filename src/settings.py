@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     KEY_PEM: str | None
     ASTRA_TOKEN: str | None
     ASTRA_ENDPOINT: str | None
+    ASTRA_CLIENTE_ID: str | None
     CERT_PEM: str | None
 
 

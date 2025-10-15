@@ -14,6 +14,7 @@ with SessionDep(engine) as session:
 from collections.abc import AsyncGenerator
 from typing import Annotated, Any
 
+from astrapy import AsyncDatabase, DataAPIClient
 from beanie import init_beanie  # type: ignore
 from fastapi import Depends
 from pymongo import AsyncMongoClient
@@ -21,6 +22,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from schemas.compras import criar_compras
 from schemas.payment_methods import Pagamento  # type: ignore # noqa: F401
 from schemas.products import Product
 from settings import LOGGER, SETTINGS
@@ -40,12 +42,23 @@ async_engine: AsyncEngine = create_async_engine(
     pool_recycle=450,
 )
 LOGGER.info(f"Engine created: {async_engine=}")
+Cassandra_db: AsyncDatabase | None = None
 
 
 async def get_async_session() -> AsyncGenerator[Any, AsyncSession]:
     LOGGER.debug(f"Getting async session to {SETTINGS.DATABASE=}")
     async with AsyncSession(async_engine, expire_on_commit=False) as session:
         yield session
+
+
+async def get_cassandra_session() -> AsyncGenerator[Any, AsyncDatabase]:
+    client = DataAPIClient(
+        SETTINGS.ASTRA_TOKEN if SETTINGS.ASTRA_TOKEN is not None else ""
+    )
+    yield client.get_async_database_by_api_endpoint(
+        SETTINGS.ASTRA_ENDPOINT if SETTINGS.ASTRA_ENDPOINT is not None else "",
+        keyspace="Polyglot",
+    )
 
 
 async def create_db_and_tables() -> None:
@@ -61,10 +74,20 @@ async def create_db_and_tables() -> None:
 
 
 AsyncSessionDep = Annotated[AsyncSession, Depends(get_async_session)]
+CassandraSessionDep = Annotated[AsyncDatabase, Depends(get_cassandra_session)]
 
 
-# # Initialize the client
-# client = DataAPIClient(SETTINGS.ASTRA_TOKEN)  # pyright: ignore[reportArgumentType]
-# db = client.get_database_by_api_endpoint(SETTINGS.ASTRA_ENDPOINT, keyspace="Polyglot")  # pyright: ignore[reportArgumentType]
+async def init_astra_cassandra() -> None:
+    global Cassandra_db
+    # Initialize the client
+    client = DataAPIClient(
+        SETTINGS.ASTRA_TOKEN if SETTINGS.ASTRA_TOKEN is not None else ""
+    )
+    Cassandra_db = client.get_async_database_by_api_endpoint(
+        SETTINGS.ASTRA_ENDPOINT if SETTINGS.ASTRA_ENDPOINT is not None else "",
+        keyspace="Polyglot",
+    )
 
-# print(f"Connected to Astra DB: {db.list_collection_names()}")
+    print("Connected to Astra DB", Cassandra_db)
+    Cassandra_db.get_collection("compras")
+    await criar_compras(Cassandra_db)
