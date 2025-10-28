@@ -3,20 +3,21 @@ name = "multidatabase"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "aiosqlite>=0.21.0",
     "alembic>=1.16.5",
     "astrapy>=2.0.1",
     "asyncpg>=0.30.0",
     "beanie[srv]>=2.0.0",
+    "cassandra-driver>=3.29.2",
     "fastapi[sqlmodel]>=0.116.1",
     "greenlet>=3.2.4",
     "passlib[bcrypt]>=1.7.4",
+    "psycopg2>=2.9.11",
     "psycopg2-binary>=2.9.11",
     "pydantic-settings>=2.10.1",
     "pyjwt>=2.10.1",
-    "pylogkit>=0.1.2",
     "python-dotenv>=1.1.1",
     "python-multipart>=0.0.20",
     "scriptmerge>=3.1.0",
@@ -27,7 +28,7 @@ dependencies = [
 
 [tool.ruff]
 line-length = 88
-target-version = "py312"
+target-version = "py313"
 fix = true
 show-fixes = true
 indent-width = 4
@@ -74,7 +75,7 @@ ignore = ["T201", "COM812"]
 
 [tool.pyright]
 typeCheckingMode = "strict"
-pythonVersion = "3.12"
+pythonVersion = "3.13"
 include = ["src", 'tests']
 exclude = [
     "**/venv",
