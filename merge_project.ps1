@@ -1,1 +1,1 @@
-uv run scriptmerge .\src\main.py -o projeto_unico.py
+uv run scriptmerge .\src\main.py -o app.py
