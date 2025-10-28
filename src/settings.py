@@ -1,5 +1,7 @@
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pylogkit import get_logger
+
+load_dotenv()
 
 
 class Settings(BaseSettings):
@@ -23,4 +25,3 @@ class Settings(BaseSettings):
 
 
 SETTINGS = Settings()  # type: ignore
-LOGGER = get_logger("mylogger", level=SETTINGS.LOG_LEVEL)  # type: ignore

@@ -6,7 +6,6 @@ from fastapi import HTTPException, status
 from sqlmodel import SQLModel, select
 
 from core.database import AsyncSession, AsyncSessionDep
-from settings import LOGGER
 
 # Decorator para logar o retorno da função e verificar se ocorreu algum erro
 
@@ -33,7 +32,6 @@ async def get_item_or_404[T](
     """Helper genérico para buscar"""
     item = await session.get(model, item_id)
     if not item:
-        LOGGER.warning(f"{model.__name__} não encontrado")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"{model.__name__} não encontrado",

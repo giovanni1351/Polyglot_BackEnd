@@ -12,16 +12,14 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from core.database import AsyncSessionDep
 from schemas.token import TokenData
 from schemas.user import User
-from settings import LOGGER, SETTINGS
+from settings import SETTINGS
 
-LOGGER.info("Criando o sistema de autenticação")
 SECRET_KEY = SETTINGS.SECRET_KEY
 ALGORITHM = SETTINGS.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = SETTINGS.ACCESS_TOKEN_EXPIRE_MINUTES
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-LOGGER.info("Sistema de autenticação criado com sucesso")
 
 
 async def get_current_user(
@@ -73,7 +71,6 @@ def get_password_hash(password: str) -> str:
 async def authenticate_user(
     username: str, password: str, session: AsyncSession
 ) -> User | Literal[False]:
-    LOGGER.info(f"Autenticando usuário {username}")
     user = (await session.exec(select(User).where(User.username == username))).first()
     if not user:
         return False
@@ -85,7 +82,6 @@ async def authenticate_user(
 def create_access_token(
     data: dict[str, Any], expires_delta: timedelta | None = None
 ) -> str:
-    LOGGER.info("Criando token de acesso")
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(UTC) + expires_delta

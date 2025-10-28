@@ -25,15 +25,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from schemas.compras import criar_compras
 from schemas.payment_methods import Pagamento  # type: ignore # noqa: F401
 from schemas.products import Product
-from settings import LOGGER, SETTINGS
-
-if SETTINGS.SERVER is not None:
-    LOGGER.info(
-        f"Creating engine to database: {SETTINGS.SERVER=} {SETTINGS.PORT=}"
-        f"{SETTINGS.DATABASE=}"
-    )
-else:
-    LOGGER.info(f"Creating engine to database: {SETTINGS.DATABASE=}")
+from settings import SETTINGS
 
 async_engine: AsyncEngine = create_async_engine(
     f"postgresql+asyncpg://{SETTINGS.DB_USER}:{SETTINGS.PASSWORD}@{SETTINGS.SERVER}:{SETTINGS.PORT}/{SETTINGS.DATABASE}"
@@ -41,12 +33,11 @@ async_engine: AsyncEngine = create_async_engine(
     else "sqlite+aiosqlite:///database.db",
     pool_recycle=450,
 )
-LOGGER.info(f"Engine created: {async_engine=}")
+
 Cassandra_db: AsyncDatabase | None = None
 
 
 async def get_async_session() -> AsyncGenerator[Any, AsyncSession]:
-    LOGGER.debug(f"Getting async session to {SETTINGS.DATABASE=}")
     async with AsyncSession(async_engine, expire_on_commit=False) as session:
         yield session
 
@@ -67,10 +58,9 @@ async def create_db_and_tables() -> None:
         "?retryWrites=true&w=majority&appName=6o-semedtre"
     )
     await init_beanie(database=client.projeto, document_models=[Product])  # type: ignore
-    LOGGER.info(f"Creating tables to {SETTINGS.DATABASE= }")
+
     async with async_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
-    LOGGER.info(f"Tables created to {SETTINGS.DATABASE= }")
 
 
 AsyncSessionDep = Annotated[AsyncSession, Depends(get_async_session)]
