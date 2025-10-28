@@ -7,21 +7,21 @@ load_dotenv()
 class Settings(BaseSettings):
     # model_config = SettingsConfigDict(env_file="../.env", env_file_encoding="utf-8")
 
-    SERVER: str | None
-    DATABASE: str | None
-    DB_USER: str | None
-    PASSWORD: str | None
-    PORT: str | None
-    SECRET_KEY: str | None
-    LOG_LEVEL: str
-    RELOAD: bool
-    ALGORITHM: str | None
-    ACCESS_TOKEN_EXPIRE_MINUTES: int
-    KEY_PEM: str | None
-    ASTRA_TOKEN: str | None
-    ASTRA_ENDPOINT: str | None
-    ASTRA_CLIENTE_ID: str | None
-    CERT_PEM: str | None
+    SERVER: str | None = None
+    DATABASE: str | None = None
+    DB_USER: str | None = None
+    PASSWORD: str | None = None
+    PORT: str | None = None
+    SECRET_KEY: str | None = None
+    LOG_LEVEL: str = "INFO"
+    RELOAD: bool = False
+    ALGORITHM: str | None = None
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    KEY_PEM: str | None = None
+    ASTRA_TOKEN: str | None = None
+    ASTRA_ENDPOINT: str | None = None
+    ASTRA_CLIENTE_ID: str | None = None
+    CERT_PEM: str | None = None
 
 
 SETTINGS = Settings()  # type: ignore
