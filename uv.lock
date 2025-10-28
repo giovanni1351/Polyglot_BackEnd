@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.13"
 
 [[package]]
@@ -429,10 +429,12 @@ dependencies = [
     { name = "fastapi" },
     { name = "greenlet" },
     { name = "passlib", extra = ["bcrypt"] },
+    { name = "psycopg2" },
     { name = "pydantic-settings" },
     { name = "pyjwt" },
     { name = "pylogkit" },
     { name = "python-multipart" },
+    { name = "scriptmerge" },
     { name = "sqlmodel" },
     { name = "tzdata" },
     { name = "uvicorn" },
@@ -449,10 +451,12 @@ requires-dist = [
     { name = "fastapi", extras = ["sqlmodel"], specifier = ">=0.116.1" },
     { name = "greenlet", specifier = ">=3.2.4" },
     { name = "passlib", extras = ["bcrypt"], specifier = ">=1.7.4" },
+    { name = "psycopg2", specifier = ">=2.9.11" },
     { name = "pydantic-settings", specifier = ">=2.10.1" },
     { name = "pyjwt", specifier = ">=2.10.1" },
     { name = "pylogkit", git = "https://github.com/luizomf/pylogkit.git" },
     { name = "python-multipart", specifier = ">=0.0.20" },
+    { name = "scriptmerge", specifier = ">=3.1.0" },
     { name = "sqlmodel", specifier = ">=0.0.24" },
     { name = "tzdata", specifier = ">=2025.2" },
     { name = "uvicorn", specifier = ">=0.35.0" },
@@ -479,6 +483,16 @@ wheels = [
 [package.optional-dependencies]
 bcrypt = [
     { name = "bcrypt" },
+]
+
+[[package]]
+name = "psycopg2"
+version = "2.9.11"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/89/8d/9d12bc8677c24dad342ec777529bce705b3e785fa05d85122b5502b9ab55/psycopg2-2.9.11.tar.gz", hash = "sha256:964d31caf728e217c697ff77ea69c2ba0865fa41ec20bb00f0977e62fdcc52e3", size = 379598, upload-time = "2025-10-10T11:14:46.075Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/88/5a/18c8cb13fc6908dc41a483d2c14d927a7a3f29883748747e8cb625da6587/psycopg2-2.9.11-cp313-cp313-win_amd64.whl", hash = "sha256:8dc379166b5b7d5ea66dcebf433011dfc51a7bb8a5fc12367fa05668e5fc53c8", size = 2714048, upload-time = "2025-10-10T11:10:19.816Z" },
+    { url = "https://files.pythonhosted.org/packages/47/08/737aa39c78d705a7ce58248d00eeba0e9fc36be488f9b672b88736fbb1f7/psycopg2-2.9.11-cp314-cp314-win_amd64.whl", hash = "sha256:f10a48acba5fe6e312b891f290b4d2ca595fc9a06850fe53320beac353575578", size = 2803738, upload-time = "2025-10-10T11:10:23.196Z" },
 ]
 
 [[package]]
@@ -623,6 +637,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/fe/75/af448d8e52bf1d8fa6a9d089ca6c07ff4453d86c65c145d0a300bb073b9b/rich-14.1.0.tar.gz", hash = "sha256:e497a48b844b0320d45007cdebfeaeed8db2a4f4bcf49f15e455cfc4af11eaa8", size = 224441, upload-time = "2025-07-25T07:32:58.125Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl", hash = "sha256:536f5f1785986d6dbdea3c75205c473f970777b4a0d6c6dd1b696aa05a3fa04f", size = 243368, upload-time = "2025-07-25T07:32:56.73Z" },
+]
+
+[[package]]
+name = "scriptmerge"
+version = "3.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/1c/c9/59102510ce1a10da6333e7c7bb7feb6e1852b302152712e3609fc476cf1d/scriptmerge-3.1.0.tar.gz", hash = "sha256:54f0fa8890f530de0205ade49bd76391528970e9092929d4e5453ce7bd111dcd", size = 15648, upload-time = "2024-12-11T17:50:40.702Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d9/83/eeec5b9f45321bc430001ac2c3205a0e533d75e0c2121fe0d4b5908648ec/scriptmerge-3.1.0-py3-none-any.whl", hash = "sha256:e14ee40c76a166aa20c0b811b018d2facecd50c7cc31a542e39b64a6e4615c5c", size = 20318, upload-time = "2024-12-11T17:50:38.124Z" },
 ]
 
 [[package]]
