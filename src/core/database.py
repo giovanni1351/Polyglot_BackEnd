@@ -11,6 +11,7 @@ with SessionDep(engine) as session:
 
 """
 
+import asyncio
 from collections.abc import AsyncGenerator
 from typing import Annotated, Any
 
@@ -46,18 +47,32 @@ async_engine: AsyncEngine = create_async_engine(
 Cassandra_db: AsyncDatabase | None = None
 _beanie_initialized = False
 _mongo_client: AsyncMongoClient | None = None
+_event_loop_id: int | None = None
 
 
 async def ensure_beanie_initialized() -> None:
     """Inicializa o Beanie de forma lazy para ambientes serverless"""
-    global _beanie_initialized, _mongo_client
-    if not _beanie_initialized:
+    global _beanie_initialized, _mongo_client, _event_loop_id
+
+    # Detecta se o event loop mudou (comum em serverless)
+    current_loop_id = id(asyncio.get_event_loop())
+
+    if not _beanie_initialized or _event_loop_id != current_loop_id:
+        # Fecha o cliente antigo se existir e o event loop mudou
+        if _mongo_client is not None and _event_loop_id != current_loop_id:
+            try:
+                await _mongo_client.close()  # type: ignore
+            except Exception:  # noqa: S110
+                pass
+
+        # Cria novo cliente para o event loop atual
         _mongo_client = AsyncMongoClient(  # type: ignore
             "mongodb+srv://mongo:mongo@6o-semedtre.fpkb99x.mongodb.net/"
             "?retryWrites=true&w=majority&appName=6o-semedtre"
         )
         await init_beanie(database=_mongo_client.projeto, document_models=[Product])  # type: ignore
         _beanie_initialized = True
+        _event_loop_id = current_loop_id
 
 
 async def get_async_session() -> AsyncGenerator[Any, AsyncSession]:
