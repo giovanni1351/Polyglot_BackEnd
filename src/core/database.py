@@ -19,6 +19,7 @@ from beanie import init_beanie  # type: ignore
 from fastapi import Depends
 from pymongo import AsyncMongoClient
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from sqlalchemy.pool import NullPool
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -31,7 +32,15 @@ async_engine: AsyncEngine = create_async_engine(
     f"postgresql+asyncpg://{SETTINGS.DB_USER}:{SETTINGS.PASSWORD}@{SETTINGS.SERVER}:{SETTINGS.PORT}/{SETTINGS.DATABASE}"
     if not SETTINGS.RELOAD
     else "sqlite+aiosqlite:///database.db",
-    pool_recycle=450,
+    poolclass=NullPool,  # Para ambientes serverless
+    connect_args={
+        # Desabilita JIT do PostgreSQL para melhor performance em serverless
+        "server_settings": {"jit": "off"},
+        "command_timeout": 60,
+        "timeout": 30,
+    }
+    if not SETTINGS.RELOAD
+    else {},
 )
 
 Cassandra_db: AsyncDatabase | None = None
