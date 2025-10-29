@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pymongo.errors import DuplicateKeyError
 
 from core.auth import get_current_user
+from core.database import ensure_beanie_initialized
 from schemas.products import Product, ProductCreate
 from schemas.user import User
 
@@ -14,6 +15,7 @@ router = APIRouter(prefix="/products", tags=["products"])
 async def create_product(
     product: ProductCreate, current_user: Annotated[User, Depends(get_current_user)]
 ) -> Product:
+    await ensure_beanie_initialized()
     produto = Product(
         **product.model_dump(),
         owner_id=current_user.id if current_user.id is not None else -1,
@@ -32,6 +34,7 @@ async def create_product(
 async def get_products(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> list[Product]:
+    await ensure_beanie_initialized()
     produtos = Product.find()
     return await produtos.to_list()
 
@@ -40,6 +43,7 @@ async def get_products(
 async def get_product(
     product_id: str, current_user: Annotated[User, Depends(get_current_user)]
 ) -> Product:
+    await ensure_beanie_initialized()
     produto = await Product.find_one({"product_id": product_id})
     if produto is None:
         raise HTTPException(

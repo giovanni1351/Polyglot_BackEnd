@@ -44,6 +44,20 @@ async_engine: AsyncEngine = create_async_engine(
 )
 
 Cassandra_db: AsyncDatabase | None = None
+_beanie_initialized = False
+_mongo_client: AsyncMongoClient | None = None
+
+
+async def ensure_beanie_initialized() -> None:
+    """Inicializa o Beanie de forma lazy para ambientes serverless"""
+    global _beanie_initialized, _mongo_client
+    if not _beanie_initialized:
+        _mongo_client = AsyncMongoClient(  # type: ignore
+            "mongodb+srv://mongo:mongo@6o-semedtre.fpkb99x.mongodb.net/"
+            "?retryWrites=true&w=majority&appName=6o-semedtre"
+        )
+        await init_beanie(database=_mongo_client.projeto, document_models=[Product])  # type: ignore
+        _beanie_initialized = True
 
 
 async def get_async_session() -> AsyncGenerator[Any, AsyncSession]:
@@ -62,11 +76,7 @@ async def get_cassandra_session() -> AsyncGenerator[Any, AsyncDatabase]:
 
 
 async def create_db_and_tables() -> None:
-    client = AsyncMongoClient(  # type: ignore
-        "mongodb+srv://mongo:mongo@6o-semedtre.fpkb99x.mongodb.net/"
-        "?retryWrites=true&w=majority&appName=6o-semedtre"
-    )
-    await init_beanie(database=client.projeto, document_models=[Product])  # type: ignore
+    await ensure_beanie_initialized()
 
     async with async_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)

@@ -9,7 +9,7 @@ from core.database import CassandraSessionDep
 from schemas.compras import Compras
 from schemas.user import User
 
-router = APIRouter(prefix="/compras", tags=["compras", "vendas"])
+router = APIRouter(prefix="/compras", tags=["vendas"])
 
 
 @router.post("/")
