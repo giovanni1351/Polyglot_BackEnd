@@ -39,4 +39,4 @@ async def get_compras(
         resultado["data_compra"] = resultado["data_compra"].to_datetime(tz=datetime.UTC)
         print(Compras(**resultado))
 
-    return result
+    return list(result)
