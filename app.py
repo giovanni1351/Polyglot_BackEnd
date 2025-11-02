@@ -114,6 +114,8 @@ with __scriptmerge_temporary_dir() as __scriptmerge_working_dir:
         return app.openapi_schema
     
     
+    app.openapi = custom_openapi
+    
     if __name__ == "__main__":
         run(
             "main:app",

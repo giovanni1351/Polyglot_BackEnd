@@ -55,6 +55,8 @@ def custom_openapi() -> dict[str, Any]:
     return app.openapi_schema
 
 
+app.openapi = custom_openapi
+
 if __name__ == "__main__":
     run(
         "main:app",
