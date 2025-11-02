@@ -105,7 +105,7 @@ with __scriptmerge_temporary_dir() as __scriptmerge_working_dir:
             title="Polyglot BACKEND",
             version="1.0.0",
             summary="Sistema de e-comercie",
-            description="""Trabalho de estudo para a criação de uma api onde se
+            description="""Trabalho de estudo para a criacao de uma api onde se
              comunica com varios bancos de dados, entre eles, postgres, mongo db
               e cassandra""",
             routes=app.routes,
