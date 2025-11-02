@@ -6,7 +6,8 @@ from sqlmodel import select
 
 from core.auth import get_current_user, get_password_hash
 from core.database import AsyncSessionDep
-from schemas.payment_methods import Pagamento, PagamentoCreate
+from schemas.payment_methods import Pagamento, PagamentoCreateLogin
+from schemas.responses import DeleteResponse
 from schemas.user import User, UserCreate, UserWithRelations
 from utils.relational_utils import create_item
 
@@ -50,11 +51,84 @@ async def read_users_me(
 
 @router.post("/payment_method")
 async def create_payment(
-    metodo: PagamentoCreate,
+    metodo: PagamentoCreateLogin,
     current_user: Annotated[User, Depends(get_current_user)],
     session: AsyncSessionDep,
 ) -> Pagamento:
-    metodo.user_id = current_user.id if current_user.id is not None else -1
+    metodo_verificando = await session.exec(
+        select(Pagamento).where(Pagamento.numero_cartao == metodo.numero_cartao)
+    )
+    if len(metodo_verificando.all()) != 0:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Method already registred, try with another card number",
+        )
+
     metodo.data_validade = metodo.data_validade.replace(tzinfo=None)
-    pagamento = Pagamento(**metodo.model_dump())
+    pagamento = Pagamento(**metodo.model_dump(), user_id=current_user.id)
     return await create_item(session, Pagamento, pagamento.model_dump())
+
+
+@router.get("/payment_method/{payment_id}")
+async def get_payment(
+    payment_id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: AsyncSessionDep,
+) -> Pagamento:
+    pagamento = (
+        await session.exec(
+            select(Pagamento)
+            .where(Pagamento.id == payment_id)
+            .where(Pagamento.user_id == current_user.id)
+        )
+    ).first()
+    if not pagamento:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Metodo de pagamento não encontrado pelo ID",
+        )
+
+    return pagamento
+
+
+@router.get("/payment_method")
+async def get_payments(
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: AsyncSessionDep,
+) -> list[Pagamento]:
+    pagamentos = (
+        await session.exec(
+            select(Pagamento).where(Pagamento.user_id == current_user.id)
+        )
+    ).fetchall()
+    if not pagamentos or len(pagamentos) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Metodo de pagamento não encontrado pelo ID",
+        )
+
+    return list[Pagamento](pagamentos)
+
+
+@router.delete("/payment_method/{payment_id}")
+async def delete_payment(
+    payment_id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: AsyncSessionDep,
+) -> DeleteResponse:
+    pagamento = (
+        await session.exec(
+            select(Pagamento)
+            .where(Pagamento.id == payment_id)
+            .where(Pagamento.user_id == current_user.id)
+        )
+    ).first()
+    if not pagamento:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Metodo de pagamento não encontrado pelo ID",
+        )
+    await session.delete(pagamento)
+    await session.commit()
+
+    return DeleteResponse(message="Payment method deleted sucesfully")

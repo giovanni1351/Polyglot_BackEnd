@@ -18,7 +18,7 @@ class UserCreate(SQLModel):
 
 
 class User(UserCreate, table=True):
-    id: int | None = Field(primary_key=True)
+    id: int = Field(primary_key=True)
     is_admin: bool = Field(default=False)
     pagamentos: list["Pagamento"] = Relationship(back_populates="user")
     created_at: datetime = Field(default=datetime.now())

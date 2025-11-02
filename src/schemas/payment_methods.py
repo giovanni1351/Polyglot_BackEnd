@@ -5,6 +5,13 @@ from sqlmodel import Field, Relationship, SQLModel
 from schemas.user import User, UserPublic
 
 
+class PagamentoCreateLogin(SQLModel):
+    numero_cartao: str
+    nome_titular: str
+    data_validade: datetime
+    cod_seguranca: int
+
+
 class PagamentoCreate(SQLModel):
     user_id: int
     numero_cartao: str

@@ -23,3 +23,10 @@ class Product(Document):
     created_at: datetime = Field(default=datetime.now())
     product_id: Annotated[str, Indexed(unique=True)]
     updated_at: datetime | None = None
+
+
+class ProductUpdate(BaseModel):
+    nome: str | None
+    preco: float | None
+    marca: str | None
+    desc: str | None
