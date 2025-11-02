@@ -1,3 +1,5 @@
+import datetime
+from collections.abc import Iterable
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -5,7 +7,8 @@ from sqlalchemy.orm import selectinload
 from sqlmodel import select
 
 from core.auth import get_current_user, get_password_hash
-from core.database import AsyncSessionDep
+from core.database import AsyncSessionDep, CassandraSessionDep
+from schemas.compras import Compras
 from schemas.payment_methods import Pagamento, PagamentoCreateLogin
 from schemas.responses import DeleteResponse
 from schemas.user import User, UserCreate, UserWithRelations
@@ -132,3 +135,20 @@ async def delete_payment(
     await session.commit()
 
     return DeleteResponse(message="Payment method deleted sucesfully")
+
+
+@router.get("/compras")
+async def get_compras_user(
+    current_user: Annotated[User, Depends(get_current_user)],
+    cassandra_db: CassandraSessionDep,
+) -> list[Compras]:
+    table = cassandra_db.get_table("compras")
+    result: Iterable[Compras] | object = await table.find(
+        {"$and": [{"user_id": current_user.id}]}
+    ).to_list()
+    for resultado in result:
+        print(resultado)
+        resultado["data_compra"] = resultado["data_compra"].to_datetime(tz=datetime.UTC)
+        print(Compras(**resultado))
+
+    return list(result)
