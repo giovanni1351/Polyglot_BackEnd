@@ -104,7 +104,7 @@ async def get_payments(
             select(Pagamento).where(Pagamento.user_id == current_user.id)
         )
     ).fetchall()
-    if not pagamentos or len(pagamentos) == 0:
+    if not pagamentos:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Metodo de pagamento não encontrado pelo ID",
