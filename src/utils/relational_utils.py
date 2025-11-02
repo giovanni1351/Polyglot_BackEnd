@@ -5,7 +5,7 @@ from typing import Any
 from fastapi import HTTPException, status
 from sqlmodel import SQLModel, select
 
-from core.database import AsyncSession, AsyncSessionDep
+from core.database import AsyncSession
 
 # Decorator para logar o retorno da função e verificar se ocorreu algum erro
 
@@ -40,7 +40,7 @@ async def get_item_or_404[T](
 
 
 async def update_item[T](
-    session: AsyncSessionDep, model: type[T], data: dict[str, Any]
+    session: AsyncSession, model: type[T], data: dict[str, Any]
 ) -> T | None:
     item = await get_item_or_404(session, model, data["id"])
     for key, value in data.items():

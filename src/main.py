@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
 from uvicorn import run
 
 from core.database import create_db_and_tables, init_astra_cassandra
@@ -35,6 +37,22 @@ app.include_router(user.router)
 app.include_router(payment_methods.router)
 app.include_router(products.router)
 app.include_router(compras.router)
+
+
+def custom_openapi() -> dict[str, Any]:
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema: dict[str, Any] = get_openapi(
+        title="Polyglot BACKEND",
+        version="1.0.0",
+        summary="Sistema de e-comercie",
+        description="""Trabalho de estudo para a criação de uma api onde se
+         comunica com varios bancos de dados, entre eles, postgres, mongo db
+          e cassandra""",
+        routes=app.routes,
+    )
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
 
 
 if __name__ == "__main__":
