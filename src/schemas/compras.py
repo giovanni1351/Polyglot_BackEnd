@@ -22,9 +22,10 @@ async def criar_compras(cassadra_db: AsyncDatabase) -> None:
         .add_column("data_compra", ColumnType.TIMESTAMP)
         .add_column("valor_pago", ColumnType.DECIMAL)
         .add_column("valor_produto", ColumnType.DECIMAL)
-        .add_partition_by(["user_id"])
+        .add_partition_by(["user_id", "data_compra", "product_id"])
         .build(),
     )
+    print("tabela criada")
 
 
 class Compras(BaseModel):
